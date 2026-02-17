@@ -183,14 +183,14 @@ local function convert_abbrev(abbrev, distribute)
 	end
 	abbrev = abbrev:sub(#abbreviations.leader + 1)
 	if abbrev:find(abbreviations.leader) == 1 then
-		return abbreviations.leader .. convert_abbrev(abbrev:sub(#abbreviations.leader + 1))
+		return abbreviations.leader .. convert_abbrev(abbrev:sub(#abbreviations.leader + 1), distribute)
 	end
 	if distribute == nil then
 		distribute = (abbreviations.distributor ~= "")
 	end
 	if distribute then
 		local distrpos = abbrev:find(abbreviations.distributor)
-		if distrpos ~= fail then
+		if distrpos ~= fail and distrpos ~= 1 then
 			local prefix = abbrev:sub(1, distrpos - 1)
 			local newabbrev = ""
 			for i = distrpos + 1, #abbrev do
@@ -216,7 +216,7 @@ local function convert_abbrev(abbrev, distribute)
 	if matchlen == 0 then
 		return abbreviations.leader .. abbrev
 	end
-	return repl .. convert_abbrev(abbrev:sub(matchlen + 1))
+	return repl .. convert_abbrev(abbrev:sub(matchlen + 1), distribute)
 end
 
 function abbreviations.convert()

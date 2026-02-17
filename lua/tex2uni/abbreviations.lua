@@ -177,7 +177,7 @@ local function insert_char_pre()
 	end
 end
 
-local function convert_abbrev(abbrev)
+local function convert_abbrev(abbrev, distribute)
 	if abbrev:find(abbreviations.leader) ~= 1 then
 		return abbrev
 	end
@@ -185,7 +185,10 @@ local function convert_abbrev(abbrev)
 	if abbrev:find(abbreviations.leader) == 1 then
 		return abbreviations.leader .. convert_abbrev(abbrev:sub(#abbreviations.leader + 1))
 	end
-	if abbreviations.distributor ~= "" then
+	if distribute == nil then
+		distribute = (abbreviations.distributor ~= "")
+	end
+	if distribute then
 		local distrpos = abbrev:find(abbreviations.distributor)
 		if distrpos ~= fail then
 			local prefix = abbrev:sub(1, distrpos - 1)
@@ -193,7 +196,7 @@ local function convert_abbrev(abbrev)
 			for i = distrpos + 1, #abbrev do
 				newabbrev = newabbrev .. abbreviations.leader .. prefix .. abbrev:sub(i,i)
 			end
-			return convert_abbrev(newabbrev)
+			return convert_abbrev(newabbrev, false)
 		end
 	end
 	local matchlen, fromlen, repl = 0, 99999, ""

@@ -185,6 +185,15 @@ local function convert_abbrev(abbrev)
 	if abbrev:find(abbreviations.leader) == 1 then
 		return abbreviations.leader .. convert_abbrev(abbrev:sub(#abbreviations.leader + 1))
 	end
+	local distrpos = abbrev:find(abbreviations.distributor)
+	if distrpos ~= fail then
+		local prefix = abbrev:sub(1, distrpos - 1)
+		local newabbrev = ""
+		for i = distrpos + 1, #abbrev do
+			newabbrev = newabbrev .. abbreviations.leader .. prefix .. abbrev:sub(i,i)
+		end
+		return convert_abbrev(newabbrev)
+	end
 	local matchlen, fromlen, repl = 0, 99999, ""
 	for from, to in pairs(abbreviations.abbreviations) do
 		local curmatchlen = 0
@@ -239,9 +248,10 @@ function abbreviations.convert()
 end
 
 function abbreviations.enable(pattern, opts)
-	opts = vim.tbl_extend("keep", opts or {}, { leader = "\\", extra = {} })
+	opts = vim.tbl_extend("keep", opts or {}, { leader = "\\", distributor = "#", extra = {} })
 
 	abbreviations.leader = opts.leader
+	abbreviations.distributor = opts.distributor
 
 	abbreviations.abbreviations = abbreviations.load()
 	for from, to in pairs(opts.extra) do
